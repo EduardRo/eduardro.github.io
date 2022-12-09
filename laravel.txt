@@ -1,0 +1,37 @@
+use Illuminate\Support\Facades\DB;
+ 
+$users = DB::table('users')
+            ->join('contacts', 'users.id', '=', 'contacts.user_id')
+            ->join('orders', 'users.id', '=', 'orders.user_id')
+            ->select('users.*', 'contacts.phone', 'orders.price')
+            ->get();
+
+
+$users = DB::table('users')
+            ->leftJoin('posts', 'users.id', '=', 'posts.user_id')
+            ->get();
+ 
+$users = DB::table('users')
+            ->rightJoin('posts', 'users.id', '=', 'posts.user_id')
+            ->get();
+
+
+$sizes = DB::table('sizes')
+            ->crossJoin('colors')
+            ->get();
+
+DB::table('users')
+        ->join('contacts', function ($join) {
+            $join->on('users.id', '=', 'contacts.user_id')->orOn(/* ... */);
+        })
+        ->get();
+
+$latestPosts = DB::table('posts')
+                   ->select('user_id', DB::raw('MAX(created_at) as last_post_created_at'))
+                   ->where('is_published', true)
+                   ->groupBy('user_id');
+ 
+$users = DB::table('users')
+        ->joinSub($latestPosts, 'latest_posts', function ($join) {
+            $join->on('users.id', '=', 'latest_posts.user_id');
+        })->get();
